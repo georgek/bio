@@ -1,10 +1,5 @@
 (in-package :gk-bio)
 
-(defconstant an #b00)
-(defconstant cn #b01)
-(defconstant gn #b11)
-(defconstant tn #b10)
-
 (defclass dna-sequence ()
   ((name
     :initarg :name
@@ -32,11 +27,7 @@
   (the (integer 0 3) (logand (ash (char-code char) -1) 3)))
 
 (defun base-to-char (base)
-  (case base
-    (0 #\a)
-    (1 #\c)
-    (2 #\t)
-    (3 #\g)))
+  (aref nucleotides base))
 
 (defun base-complement (base)
   (the (integer 0 3) (logxor 2 base)))
@@ -80,4 +71,24 @@
                  :name (name seq)
                  :direction (other (direction seq) :5p :3p)
                  :bases (map 'vector #'base-complement (bases seq))))
+
+(defclass protein-sequence ()
+  ((name
+    :initarg :name
+    :initform nil
+    :accessor name
+    :documentation "Name of protein.")
+   (acids
+    :initarg :acids
+    :initform (make-array 100
+                          :element-type '(integer 0 19)
+                          :adjustable t
+                          :fill-pointer 0)
+    :accessor acids)))
+
+(defun triplet-to-acid (base1 base2 base3)
+  (aref gene-code base1 base2 base3))
+
+(defun acid-to-char (acid)
+  (aref amino-acids acid))
 
