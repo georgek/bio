@@ -68,8 +68,9 @@
          (format stream "~%"))))
 
 (defun write-seq-file (seq filename &key (pretty nil))
-  (with-open-file (fileout filename)
-    (write-seq seq :pretty pretty :stream fileout)))
+  (with-open-file (fileout filename :direction :output)
+    (write-seq seq :pretty pretty :stream fileout)
+    (fresh-line fileout)))
 
 (defmacro other (form o1 o2)
   `(if (eq ,form ,o1) ,o2 ,o1))
