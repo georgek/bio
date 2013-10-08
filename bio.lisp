@@ -90,5 +90,7 @@
   (aref gene-code base1 base2 base3))
 
 (defun acid-to-char (acid)
-  (aref amino-acids acid))
+  (if (numberp acid)
+      (aref amino-acids acid)
+      #\*))
 
