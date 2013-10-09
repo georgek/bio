@@ -5,6 +5,7 @@
   :licence "GNU GPLv3"
   :serial t
   :components ((:file "packages")
+               (:file "genetic-code")
                (:file "dna")
                (:file "io")
                (:file "bio")))
