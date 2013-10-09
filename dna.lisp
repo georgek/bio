@@ -38,11 +38,6 @@
 (defun triplet-to-acid (base1 base2 base3)
   (aref gene-code base1 base2 base3))
 
-(defun acid-to-char (acid)
-  (if (numberp acid)
-      (aref amino-acids acid)
-      #\*))
-
 (defun find-orfs (dna-seq min-length)
   (let ((bases (bases dna-seq))
         (lengths (make-array 6 :initial-element 0))

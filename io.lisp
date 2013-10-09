@@ -8,6 +8,11 @@
 (defun base-to-char (base)
   (aref nucleotides base))
 
+(defun acid-to-char (acid)
+  (if (numberp acid)
+      (aref amino-acids acid)
+      #\*))
+
 (defun read-seq (stream &optional name)
   (let ((seq (make-instance 'dna-sequence :name name)))
     (loop for char = (read-char stream nil)
