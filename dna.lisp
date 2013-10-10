@@ -73,5 +73,5 @@
                                             (cdr f)
                                             f))
                     orfs))
-    (sort (reduce #'nconc orfs) #'< :key #'car)))
+    (sort (reduce #'nconc orfs) #'> :key (lambda (orf) (abs (cdr orf))))))
 
