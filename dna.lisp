@@ -23,6 +23,12 @@
   (print-unreadable-object (object stream :type t)
     (format stream "with ~A bases" (length (bases object)))))
 
+(defmethod length ((sequence dna-sequence))
+  (length (bases sequence)))
+
+(defmethod elt ((sequence dna-sequence) index)
+  (aref (bases sequence) index))
+
 (defun base-complement (base)
   (the (integer 0 3) (logxor 2 base)))
 
