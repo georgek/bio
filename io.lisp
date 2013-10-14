@@ -21,6 +21,9 @@
            (vector-push-extend (char-to-base char) (bases seq))))
     seq))
 
+(defun seq (string &optional name)
+  (read-seq (make-string-input-stream string) name))
+
 (defun read-seq-file (filename &optional name)
   (with-open-file (filein filename)
     (read-seq filein name)))
