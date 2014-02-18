@@ -34,6 +34,8 @@
 (defparameter chunks-per-line 6)
 
 (defun pretty-print-seq (seq &key (stream t) (key #'identity))
+  "Prints a vector in a pretty way to STREAM using function KEY to transform
+each element."
   (loop for item across seq
      for i from 0 do
        (when (= 0 (mod i (* items-per-chunk chunks-per-line)))
@@ -44,7 +46,9 @@
        (when (= 0 (mod (1+ i) (* items-per-chunk chunks-per-line)))
          (format stream "~%"))))
 
-(defgeneric write-seq (seq &key pretty stream))
+(defgeneric write-seq (seq &key pretty stream)
+  (:documentation "Write SEQ object to STREAM.  If PRETTY is true it is done
+  in a pretty way.")  )
 
 (defmethod write-seq ((seq dna-sequence) &key (pretty nil) (stream t))
   (if pretty
