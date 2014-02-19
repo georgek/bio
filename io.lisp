@@ -28,6 +28,23 @@
   (with-open-file (filein filename)
     (read-seq filein name)))
 
+(defun read-fasta-file (filename)
+  "Reads fasta file at FILENAME and outputs list of sequences."
+  (let ((sequences (list (make-instance 'dna-sequence))))
+    (with-open-file (filein filename)
+      (loop for line = (read-line filein nil)
+         while line do
+           (cond
+             ((char= (elt line 0) #\>)
+              (when (> (length (bases (car sequences))) 0)
+                (push (make-instance 'dna-sequence) sequences))
+              (setf (name (car sequences)) (string-trim "> " line)))
+             (t
+              (loop for char across line do
+                   (when (char-dna-basep char)
+                    (push-to-sequence (car sequences) (char-to-base char))))))))
+    sequences))
+
 ;;; output
 
 (defparameter items-per-chunk 10)
