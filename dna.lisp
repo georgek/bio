@@ -29,6 +29,13 @@
 (defmethod elt ((sequence dna-sequence) index)
   (aref (bases sequence) index))
 
+(defmethod push-to-sequence ((sequence dna-sequence) base)
+  (assert (typep base '(integer 0 3)))
+  (vector-push-extend base (bases sequence)))
+
+(defun char-dna-basep (char)
+  (find char "acgtACGT"))
+
 (defun base-complement (base)
   (the (integer 0 3) (logxor 2 base)))
 

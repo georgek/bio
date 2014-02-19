@@ -17,8 +17,8 @@
   (let ((seq (make-instance 'dna-sequence :name name)))
     (loop for char = (read-char stream nil)
        while char do
-         (when (find char "acgt")
-           (vector-push-extend (char-to-base char) (bases seq))))
+         (when (char-dna-basep char)
+           (push-to-sequence seq (char-to-base char))))
     seq))
 
 (defun seq (string &optional name)

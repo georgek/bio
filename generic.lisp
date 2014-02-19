@@ -10,3 +10,6 @@
 (defmethod elt (sequence index)
   (cl:elt sequence index))
 
+(defgeneric push-to-sequence (sequence base)
+  (:documentation "Adds BASE to the end of SEQUENCE."))
+
