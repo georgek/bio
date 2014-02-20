@@ -47,6 +47,36 @@
      (nreverse sequences)
      (nreverse (cdr sequences)))))
 
+(defun file-read-error (filename line-number)
+  (error "Error in file ~S at line ~D~%" filename line-number))
+
+(defun read-fastq-file (filename)
+  "Reads fastq file at FILENAME and outputs a list of sequences."
+  (let ((sequences (list)))
+    (with-open-file (filein filename)
+      (loop with line-number = 1
+         for line = (read-line filein nil)
+         while line do
+           (push (make-instance 'dna-sequence) sequences)
+           (if (char= (elt line 0) #\@)
+               (setf (name (car sequences)) (string-trim "@ " line))
+               (file-read-error filename line-number))
+           (setf line (read-line filein nil))
+           (incf line-number)
+           (loop for char across line do
+                (if (char-dna-basep char)
+                    (push-to-sequence (car sequences) (char-to-base char))
+                    (file-read-error filename line-number)))
+           (setf line (read-line filein nil))
+           (incf line-number)
+           (unless (char= (elt line 0) #\+)
+             (file-read-error filename line-number))
+           (setf line (read-line filein nil))
+           (incf line-number)
+           ;; this line has the quality scores
+           (incf line-number)))
+    (nreverse sequences)))
+
 ;;; output
 
 (defparameter items-per-chunk 10)
