@@ -43,7 +43,9 @@
               (loop for char across line do
                    (when (char-dna-basep char)
                     (push-to-sequence (car sequences) (char-to-base char))))))))
-    sequences))
+    (if (> (length (bases (car sequences))) 0)
+     (nreverse sequences)
+     (nreverse (cdr sequences)))))
 
 ;;; output
 
