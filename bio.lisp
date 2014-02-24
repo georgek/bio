@@ -10,7 +10,7 @@
    (acids
     :initarg :acids
     :initform (make-array 100
-                          :element-type '(integer 0 19)
+                          :element-type '(integer 0 20)
                           :adjustable t
                           :fill-pointer 0)
     :accessor acids)))
