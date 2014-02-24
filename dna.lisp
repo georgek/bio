@@ -51,6 +51,18 @@
 (defun triplet-to-acid (base1 base2 base3)
   (aref gene-code base1 base2 base3))
 
+(defun seq-translate (seq &optional (frame 0))
+  (let ((protein (make-instance 'protein-sequence)))
+    (loop for i from frame to (- (length seq) 3) by 3
+       for acid = (triplet-to-acid (elt seq i)
+                                   (elt seq (+ i 1))
+                                   (elt seq (+ i 2)))
+       do
+         (dbg :trans "~A ~A ~A => ~A~%" (elt seq i) (elt seq (+ i 1)) (elt seq (+ i 2))
+              pacid)
+         (push-to-sequence protein acid))
+    protein))
+
 (defun find-orfs (dna-seq min-length)
   (let ((bases (bases dna-seq))
         (lengths (make-array 6 :initial-element 0))
