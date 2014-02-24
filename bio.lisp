@@ -26,7 +26,7 @@
   "Calculates n50 statistic for a list of sequences."
   (let* ((lengths (sort (mapcar #'length sequences) #'>))
          (total (reduce #'+ lengths)))
-    (dbg :n50 "~A~%" lengthscs)
+    (dbg :n50 "~A~%" lengths)
     (loop with sum = 0
        for length in lengths
        do (incf sum length)
