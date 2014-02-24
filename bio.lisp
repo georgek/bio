@@ -15,6 +15,16 @@
                           :fill-pointer 0)
     :accessor acids)))
 
+(defmethod length ((sequence protein-sequence))
+  (length (acids sequence)))
+
+(defmethod elt ((sequence protein-sequence) index)
+  (aref (acids sequence) index))
+
+(defmethod push-to-sequence ((sequence protein-sequence) base)
+  (assert (typep base '(integer 0 20)))
+  (vector-push-extend base (acids sequence)))
+
 (defun median (sequence &key (order #'<))
   (let ((sequence (sort sequence order)))
     (if (evenp (length sequence))
