@@ -46,7 +46,7 @@
   (make-instance 'dna-sequence
                  :name (name seq)
                  :direction (other (direction seq) :5p :3p)
-                 :bases (map 'vector #'base-complement (bases seq))))
+                 :bases (nreverse (map 'vector #'base-complement (bases seq)))))
 
 (defun triplet-to-acid (base1 base2 base3)
   (aref gene-code base1 base2 base3))
