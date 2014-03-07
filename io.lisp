@@ -115,3 +115,12 @@ each element."
     (write-seq seq :pretty pretty :stream fileout)
     (fresh-line fileout)))
 
+(defun write-fasta-file (sequences stream)
+  (loop for sequence in sequences do
+       (format stream "> ~A" (name sequence))
+       (loop for base across (bases sequence)
+          for i from 0 do
+            (when (= (mod i 80) 0)
+              (write-char #\Newline stream))
+            (write-char (base-to-char base) stream))
+       (fresh-line stream)))
