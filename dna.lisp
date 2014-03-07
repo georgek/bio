@@ -59,7 +59,7 @@
                                    (elt seq (+ i 2)))
        do
          (dbg :trans "~A ~A ~A => ~A~%" (elt seq i) (elt seq (+ i 1)) (elt seq (+ i 2))
-              pacid)
+              acid)
          (push-to-sequence protein acid))
     protein))
 
