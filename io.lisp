@@ -32,18 +32,19 @@
     (with-open-file (filein filename)
       (loop for line = (read-line filein nil)
          while line do
-           (cond
-             ((char= (elt line 0) #\>)
-              (when (> (length (bases (car sequences))) 0)
-                (push (make-instance 'dna-sequence) sequences))
-              (setf (name (car sequences)) (string-trim "> " line)))
-             (t
-              (loop for char across line do
-                   (when (char-dna-basep char)
-                    (push-to-sequence (car sequences) (char-to-base char))))))))
+           (when (> (length line) 0)
+             (cond
+               ((char= (elt line 0) #\>)
+                (when (> (length (bases (car sequences))) 0)
+                  (push (make-instance 'dna-sequence) sequences))
+                (setf (name (car sequences)) (string-trim "> " line)))
+               (t
+                (loop for char across line do
+                     (when (char-dna-basep char)
+                       (push-to-sequence (car sequences) (char-to-base char)))))))))
     (if (> (length (bases (car sequences))) 0)
-     (nreverse sequences)
-     (nreverse (cdr sequences)))))
+        (nreverse sequences)
+        (nreverse (cdr sequences)))))
 
 (defun file-read-error (filename line-number)
   (error "Error in file ~S at line ~D~%" filename line-number))
