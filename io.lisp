@@ -5,8 +5,11 @@
 (defun char-to-base (char)
   (the (integer 0 3) (logand (ash (char-code char) -1) 3)))
 
-(defun base-to-char (base)
-  (aref nucleotides base))
+(defun base-to-char (base &key (upper nil))
+  (let ((char (aref nucleotides base)))
+    (if upper
+        (char-upcase char)
+        char)))
 
 (defun acid-to-char (acid)
   (aref amino-acids acid))
@@ -116,11 +119,13 @@ each element."
     (fresh-line fileout)))
 
 (defun write-fasta-file (sequences stream)
+  (when (atom sequences)
+    (setf sequences (list sequences)))
   (loop for sequence in sequences do
        (format stream "> ~A" (name sequence))
        (loop for base across (bases sequence)
           for i from 0 do
             (when (= (mod i 80) 0)
               (write-char #\Newline stream))
-            (write-char (base-to-char base) stream))
+            (write-char (base-to-char base :upper t) stream))
        (fresh-line stream)))
