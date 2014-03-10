@@ -24,3 +24,8 @@
 
 (defun dbg-on-p (id)
   (member id *dbg-ids*))
+
+(defun sanitise-filename (filename)
+  (string-trim "_-." (ppcre:regex-replace-all
+                      "[^a-zA-Z0-9_\\-.]+" filename "_")))
+
