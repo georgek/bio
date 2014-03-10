@@ -122,7 +122,7 @@ each element."
   (when (atom sequences)
     (setf sequences (list sequences)))
   (loop for sequence in sequences do
-       (format stream "> ~A" (name sequence))
+       (format stream ">~A" (name sequence))
        (loop for base across (bases sequence)
           for i from 0 do
             (when (= (mod i 80) 0)
