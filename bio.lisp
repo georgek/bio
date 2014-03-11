@@ -63,3 +63,13 @@
     (/ (reduce #'+ gc-counts)
        (reduce #'+ (mapcar #'length sequences)))))
 
+(defun consensus (sequences)
+  "Builds a consensus sequence from the list of sequences.  The consensus will
+  be the length of the shortest sequence and each position is determined by a
+  majority vote."
+  (let* ((length (reduce #'min (mapcar #'length sequences)))
+         (consensus (make-instance 'seq)))
+    (loop for i from 0 below length do
+         (push-to-sequence consensus (mode (mapcar (lambda (s) (elt s i)) sequences))))
+    consensus))
+
