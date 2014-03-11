@@ -32,6 +32,19 @@
               (elt sequence (1- (/ (length sequence) 2)))) 2)
         (elt sequence (floor (/ (length sequence) 2))))))
 
+(defun mode (list)
+  (let ((counts (make-hash-table)))
+    (loop for item in list do
+         (if (gethash item counts)
+             (incf (gethash item counts))
+             (setf (gethash item counts) 1)))
+    (loop with max-length = 0 with max
+       for item being the hash-keys in counts do
+         (when (> (gethash item counts) max-length)
+           (setf max item
+                 max-length (gethash item counts)))
+       finally (return max))))
+
 (defun n50 (sequences)
   "Calculates n50 statistic for a list of sequences."
   (let* ((lengths (sort (mapcar #'length sequences) #'>))
