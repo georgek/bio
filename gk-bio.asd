@@ -10,5 +10,6 @@
                (:file "generic")
                (:file "bio")
                (:file "genetic-code")
+               (:file "seq")
                (:file "dna")
                (:file "io")))

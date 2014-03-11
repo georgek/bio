@@ -10,6 +10,10 @@
 (defmethod elt (sequence index)
   (cl:elt sequence index))
 
-(defgeneric push-to-sequence (sequence base)
-  (:documentation "Adds BASE to the end of SEQUENCE."))
+(defgeneric push-to-sequence (sequence object)
+  (:documentation "Adds OBJECT to the end of SEQUENCE."))
+
+(defgeneric get-char (sequence index)
+  (:documentation "Returns the printable character corresponding to this
+  position."))
 
