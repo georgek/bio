@@ -61,5 +61,5 @@
   (aref (acids sequence) index))
 
 (defmethod push-to-sequence ((sequence protein-sequence) base)
-  (assert (typep base '(integer 0 20)))
+  (check-type base (integer 0 20))
   (vector-push-extend base (acids sequence)))

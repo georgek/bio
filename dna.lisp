@@ -30,7 +30,7 @@
   (aref (bases sequence) index))
 
 (defmethod push-to-sequence ((sequence dna-sequence) base)
-  (assert (typep base '(integer 0 3)))
+  (check-type base (integer 0 3))
   (vector-push-extend base (bases sequence)))
 
 (defun char-dna-basep (char)
