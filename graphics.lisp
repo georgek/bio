@@ -11,15 +11,18 @@
   (if (null reference) (setf reference (consensus sequences)))
   (who:with-html-output (stream nil :prologue t)
     (:html
-     (:head (:title "Test")
+     (:head (:title "Haplotypes")
             (:link :rel "stylesheet" :href "test.css"))
      (:body
+      (:script :src "wz_tooltip/wz_tooltip.js" :type "text/javascript")
       (let ((len (min (reduce #'min (mapcar #'length sequences))
                       (length reference))))
         (loop for sequence in sequences do
              (who:htm
               (:div
                (:span :class "name"
+                      :onmouseover (format nil "Tip(\"~A\");" (name sequence))
+                      :onmouseout "UnTip();"
                       (who:fmt (format nil "~~~DA" name-length)
                                (subseq (name sequence) 0
                                        (min name-length
@@ -31,6 +34,8 @@
                             (if (eq character (elt reference i))
                                 character
                                 "snp")
+                            :onmouseover (format nil "Tip(~A);" (1+ i))
+                            :onmouseout "UnTip();"
                             (who:fmt "~A" (html-char character))))))))))))
   (fresh-line stream)
   (values))
