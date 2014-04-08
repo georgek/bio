@@ -26,7 +26,7 @@
                       (who:fmt (format nil "~~~DA" name-length)
                                (subseq (name sequence) 0
                                        (min name-length
-                                            (length sequence)))))
+                                            (length (name sequence))))))
                (loop for i from 0 below len
                   for character = (elt sequence i) do
                     (who:htm
