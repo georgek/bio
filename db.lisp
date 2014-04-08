@@ -1,6 +1,6 @@
 (in-package :gk-bio)
 
-(defun write-consensus-fasta (stream db animal-id day)
+(defun get-consensus-sequences (db animal-id day)
   "Writes consensus from DB for ANIMAL-ID and DAY to STREAM.  DB must be an
   open sqlite database."
   (sqlite:execute-non-query
@@ -32,9 +32,6 @@
          (push (make-instance 'seq :name chr-name
                               :elements (map 'vector #'character consensus))
                consensuses))
-    (write-fasta-file consensuses stream))
-
-  (sqlite:execute-non-query
-   db
-   "drop table consensus;"))
+    (sqlite:execute-non-query db "drop table consensus;")
+    (nreverse consensuses)))
 
