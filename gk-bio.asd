@@ -3,7 +3,7 @@
   :version "0.1"
   :author "George Kettleborough"
   :licence "GNU GPLv3"
-  :depends-on ("cl-ppcre" "gzip-stream")
+  :depends-on ("cl-ppcre" "gzip-stream" "sqlite")
   :serial t
   :components ((:file "packages")
                (:file "utils")
@@ -12,4 +12,5 @@
                (:file "genetic-code")
                (:file "sequence")
                (:file "dna")
-               (:file "io")))
+               (:file "io")
+               (:file "db")))
