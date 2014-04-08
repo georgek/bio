@@ -29,10 +29,24 @@
   (with-open-file (filein filename)
     (read-seq filein name)))
 
+(defun file-is-gzip (filename)
+  "Determines if a file is a GZIP file based on its magic number."
+  (with-open-file (filein filename :element-type 'unsigned-byte)
+    (and (= (read-byte filein) #x1f)
+         (= (read-byte filein) #x8b))))
+
+(defmacro with-open-file-maybe-gzip ((stream filespec &key (direction :input))
+                                     &body body)
+  `(if (file-is-gzip ,filespec)
+       ,(macroexpand `(with-open-gzip-file (,stream ,filespec :direction ,direction)
+                        ,@body))
+       ,(macroexpand `(with-open-file (,stream ,filespec :direction ,direction)
+                        ,@body))))
+
 (defun read-fasta-file (filename)
   "Reads fasta file at FILENAME and outputs list of sequences."
   (let ((sequences (list (make-instance 'seq))))
-    (with-open-file (filein filename)
+    (with-open-file-maybe-gzip (filein filename)
       (loop for line = (read-line filein nil)
          while line do
            (when (> (length line) 0)
@@ -49,12 +63,12 @@
         (nreverse (cdr sequences)))))
 
 (defun file-read-error (filename line-number)
-  (error "Error in file ~S at line ~D~%" filename line-number))
+  (error (format nil "Error in file ~S at line ~D~%" filename line-number)))
 
 (defun read-fastq-file (filename)
   "Reads fastq file at FILENAME and outputs a list of sequences."
   (let ((sequences (list)))
-    (with-open-file (filein filename)
+    (with-open-file-maybe-gzip (filein filename)
       (loop with line-number = 1
          for line = (read-line filein nil)
          while line do

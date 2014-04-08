@@ -3,7 +3,7 @@
   :version "0.1"
   :author "George Kettleborough"
   :licence "GNU GPLv3"
-  :depends-on ("cl-ppcre")
+  :depends-on ("cl-ppcre" "gzip-stream")
   :serial t
   :components ((:file "packages")
                (:file "utils")
