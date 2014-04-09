@@ -28,7 +28,8 @@
 
 (defmethod print-object ((object seq) stream)
   (print-unreadable-object (object stream :type t)
-    (format stream "with ~A characters" (length (characters object)))))
+    (format stream "~A with ~A characters" (name object)
+            (length (characters object)))))
 
 (defmethod length ((sequence seq))
   (length (characters sequence)))

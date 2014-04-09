@@ -21,7 +21,7 @@
 
 (defmethod print-object ((object dna-sequence) stream)
   (print-unreadable-object (object stream :type t)
-    (format stream "with ~A bases" (length (bases object)))))
+    (format stream "~A with ~A bases" (name object) (length (bases object)))))
 
 (defmethod length ((sequence dna-sequence))
   (length (bases sequence)))
