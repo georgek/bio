@@ -23,6 +23,19 @@
   (print-unreadable-object (object stream :type t)
     (format stream "~A with ~A bases" (name object) (length (bases object)))))
 
+(defmethod seq-to-dna (seq)
+  (let ((dna (make-instance 'dna-sequence
+                            :name (name seq)
+                            :bases (make-array (length seq)
+                                               :element-type '(integer 0 3)
+                                               :adjustable t
+                                               :fill-pointer (length seq)))))
+    (loop for i from 0 below (length seq) do
+         (if (char-dna-basep (aref (characters seq) i))
+             (setf (aref (bases dna) i) (char-to-base (aref (characters seq) i)))
+             (error "~C is not a nucleotide.~%" (aref (characters seq) i))))
+    dna))
+
 (defmethod length ((sequence dna-sequence))
   (length (bases sequence)))
 
