@@ -72,16 +72,14 @@
       (loop with line-number = 1
          for line = (read-line filein nil)
          while line do
-           (push (make-instance 'dna-sequence) sequences)
+           (push (make-instance 'seq) sequences)
            (if (char= (elt line 0) #\@)
                (setf (name (car sequences)) (string-trim "@ " line))
                (file-read-error filename line-number))
            (setf line (read-line filein nil))
            (incf line-number)
            (loop for char across line do
-                (if (char-dna-basep char)
-                    (push-to-sequence (car sequences) (char-to-base char))
-                    (file-read-error filename line-number)))
+                (push-to-sequence (car sequences) char))
            (setf line (read-line filein nil))
            (incf line-number)
            (unless (char= (elt line 0) #\+)
