@@ -114,6 +114,12 @@ each element."
   (:documentation "Write SEQ object to STREAM.  If PRETTY is true it is done
   in a pretty way.")  )
 
+(defmethod write-seq ((seq seq) &key (pretty nil) (stream t))
+  (if pretty
+      (pretty-print-seq (characters seq) :stream stream)
+      (loop for item across (characters seq) do
+           (write-char item stream))))
+
 (defmethod write-seq ((seq dna-sequence) &key (pretty nil) (stream t))
   (if pretty
       (pretty-print-seq (bases seq) :stream stream :key #'base-to-char)
