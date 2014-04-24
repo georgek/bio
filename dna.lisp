@@ -116,8 +116,8 @@
 (defun nucleotide-count (dna-sequence)
   "Returns a list of the four nucleotide counts.  Use char-to-base to index by
 character."
-  (let ((counts (make-list 4 :initial-element 0)))
+  (let ((counts (make-array 4 :initial-element 0)))
     (loop for base across (bases dna-sequence) do
-         (incf (nth base counts)))
+         (incf (aref counts base)))
     counts))
 
