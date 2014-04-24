@@ -40,3 +40,31 @@
   (fresh-line stream)
   (values))
 
+(defparameter nuc-colours #("green" "blue" "red" "yellow"))
+
+(defun tikz-mult-algn (dna-sequences stream)
+  "Makes TikZ code to show sequence logo of aligned sequences."
+  (format stream "\\begin{tikzpicture}[font=\\sffamily\\bfseries\\Huge,x=1pt,y=1pt]~%")
+  (let ((n (length dna-sequences))
+        (length (reduce #'min dna-sequences :key #'length)))
+    (loop for i from 0 below length
+       for x from 0 by 15
+       for counts = (nucleotide-count
+                     (make-instance 'dna-sequence :bases
+                                    (map 'vector
+                                         (lambda (seq) (aref (bases seq) i))
+                                         dna-sequences)))
+       do
+         (loop for j from 0 to 3
+            for prop = (/ (float (aref counts j)) n)
+            with y = 0
+            do
+              (unless (zerop prop)
+               (format stream "\\node[yscale=~,3F,anchor=base,color=~A] at (~D,~,3Fex) {~C};~%"
+                       prop
+                       (aref nuc-colours j)
+                       x
+                       y
+                       (base-to-char j :upper t))
+               (incf y (* 4.0 prop))))))
+    (format stream "\\end{tikzpicture}"))
