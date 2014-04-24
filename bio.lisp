@@ -50,3 +50,27 @@
          (push-to-sequence consensus (mode (mapcar (lambda (s) (elt s i)) sequences))))
     consensus))
 
+(defun all-equal (collection &key (test #'eq))
+  (every #'identity
+         (map 'list (lambda (e) (funcall test e (elt collection 0)))
+              collection)))
+
+(defun find-repeats (sequences n &optional (accepted-bases "acgt"))
+  (setf accepted-bases (string-downcase accepted-bases))
+  (loop for seq in sequences
+     for bases = (characters seq)
+     for length = (length seq)
+     do
+       (loop for i from 0 upto (- length (1+ (* 2 n))) do
+            (when (and
+                   (position (char-downcase (elt bases i)) accepted-bases)
+                   (not (eq (elt bases i) (elt bases (+ i n))))
+                   (not (eq (elt bases (+ i n)) (elt bases (+ i n 1))))
+                   (eq (elt bases i) (elt bases (+ i n 1)))
+                   (all-equal (subseq bases i (+ i n)))
+                   (all-equal (subseq bases (+ i n 1) (+ i n 1 n))))
+              (format t "Seq: ~A, pos: ~D, found: ~{~A~}~A~{~A~}~%"
+                      (name seq) (+ i n)
+                      (map 'list #'identity (subseq bases i (+ i n)))
+                      (elt bases (+ i n))
+                      (map 'list #'identity (subseq bases (+ i n 1) (+ i n 1 n))))))))
