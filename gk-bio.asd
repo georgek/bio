@@ -14,4 +14,5 @@
                (:file "dna")
                (:file "io")
                (:file "db")
-               (:file "graphics")))
+               (:file "graphics")
+               (:file "strand-bias")))
