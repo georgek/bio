@@ -146,3 +146,11 @@ each element."
               (write-char #\Newline stream))
             (write-char (char-upcase base) stream))
        (fresh-line stream)))
+
+(defun file-string (filename)
+  (with-open-file (filein filename)
+    (let ((string (make-array (file-length filein)
+                              :element-type 'character :fill-pointer t)))
+      (setf (fill-pointer string) (read-sequence string filein))
+      (string-trim '(#\Newline) string))))
+
