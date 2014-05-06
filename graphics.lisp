@@ -67,4 +67,5 @@
                        y
                        (base-to-char j :upper t))
                (incf y (* 4.0 prop))))))
-    (format stream "\\end{tikzpicture}"))
+    (format stream "\\end{tikzpicture}")
+    (fresh-line stream))
