@@ -36,6 +36,14 @@
              (error "~C is not a nucleotide.~%" (aref (characters seq) i))))
     dna))
 
+(defmethod list-to-dna (list)
+  "Turns a list of bases as strings (probably from a database) into a dna
+  sequence."
+  (let ((dna (make-instance 'dna-sequence)))
+    (mapc (lambda (b) (push-to-sequence dna b))
+          (mapcar (lambda (s) (char-to-base (aref s 0))) list))
+    dna))
+
 (defmethod length ((sequence dna-sequence))
   (length (bases sequence)))
 
