@@ -30,8 +30,9 @@
                                    order by position asc;"
                                   chr-id)))
          (push (make-instance 'seq :name chr-name
-                              :elements (map 'vector #'character consensus))
+                              :characters (map 'vector #'character consensus))
                consensuses))
     (sqlite:execute-non-query db "drop table consensus;")
     (nreverse consensuses)))
+
 

@@ -8,7 +8,7 @@
     :accessor name
     :documentation "Name of sequence.")
    (characters
-    :initarg :elements
+    :initarg :characters
     :initform (make-array 100
                           :element-type 'character
                           :adjustable t
