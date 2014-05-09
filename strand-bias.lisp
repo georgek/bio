@@ -147,7 +147,7 @@
                     (incf a) (incf d)
                     (setf p (* (/ (* b c) (* a d)) p))
                     (decf b) (decf c))
-               (+ p1 p2))))))))))
+               (+ p1 p2)))))))))
 
 (defun strand-bias (af ar df dr)
   (- 1 (float (fisher-exact-test af ar df dr :tails :both))))
