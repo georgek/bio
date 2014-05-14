@@ -95,6 +95,20 @@
 (defparameter items-per-chunk 10)
 (defparameter chunks-per-line 6)
 
+(defun uniquify-names (names)
+  "Returns list of names with unique names."
+  (let ((counts (make-hash-table :test #'equalp)))
+    (loop for name in names do
+         (if (gethash name counts)
+             (incf (car (gethash name counts)))
+             (setf (gethash name counts) (cons 1 1))))
+    (loop for name in names collecting
+         (if (> (car (gethash name counts)) 1)
+             (prog1
+                 (format nil "~A-~D" name (cdr (gethash name counts)))
+               (incf (cdr (gethash name counts))))
+             name))))
+
 (defun pretty-print-seq (seq &key (stream t) (key #'identity))
   "Prints a vector in a pretty way to STREAM using function KEY to transform
 each element."
@@ -138,14 +152,18 @@ each element."
 (defun write-fasta-file (sequences stream)
   (when (atom sequences)
     (setf sequences (list sequences)))
-  (loop for sequence in sequences do
-       (format stream ">~A" (name sequence))
-       (loop for base across (characters sequence)
-          for i from 0 do
-            (when (= (mod i 80) 0)
-              (write-char #\Newline stream))
-            (write-char (char-upcase base) stream))
-       (fresh-line stream)))
+  (let ((sequences (mapcar (lambda (seq name)
+                             (make-instance 'seq :name name
+                                            :characters (characters seq)))
+                           sequences (uniquify-names (mapcar #'name sequences)))))
+    (loop for sequence in sequences do
+         (format stream ">~A" (name sequence))
+         (loop for base across (characters sequence)
+            for i from 0 do
+              (when (= (mod i 80) 0)
+                (write-char #\Newline stream))
+              (write-char (char-upcase base) stream))
+         (fresh-line stream))))
 
 (defun file-string (filename)
   (with-open-file (filein filename)
