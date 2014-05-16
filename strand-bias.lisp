@@ -152,35 +152,47 @@
 (defun strand-bias (af ar df dr)
   (- 1 (float (fisher-exact-test af ar df dr :tails :both))))
 
+(defparameter prominence-threshold 4)
+
 (defun filter-bias (af ar cf cr gf gr tf tr)
   "Returns the position with strand bias removed. This just assumes that one
    direction is correct and assumes that the correct direction will be the one
    with the more prominent consensus base."
   (let* ((forward-max (max af cf gf tf))
          (reverse-max (max ar cr gr tr))
+         ;; (forward-2nd (apply
+         ;;               #'max
+         ;;               (remove forward-max (list af cf gf tf) :count 1)))
+         ;; (reverse-2nd (apply
+         ;;               #'max
+         ;;               (remove reverse-max (list ar cr gr tr) :count 1)))
          (forward-sum (+ af cf gf tf))
          (reverse-sum (+ ar cr gr tr))
-         (forward-prominence (if (> forward-sum 0)
+         (forward-prominence (if (> forward-sum prominence-threshold)
                                  (/ forward-max forward-sum)
                                  0))
-         (reverse-prominence (if (> reverse-sum 0)
+         (reverse-prominence (if (> reverse-sum prominence-threshold)
                                  (/ reverse-max reverse-sum)
                                  0)))
     (dbg :filter-bias "fsum: ~3D, rsum: ~3D~%" forward-sum reverse-sum)
     (dbg :filter-bias "fpro: ~3,1F, rpro: ~3,1F~%"
          forward-prominence reverse-prominence)
-    (mapcar #'round
-     (if (> forward-prominence reverse-prominence)
-         (if (> reverse-sum 0)
-             (let ((ratio (/ reverse-sum forward-sum)))
-               (list af (* af ratio) cf (* cf ratio)
-                     gf (* gf ratio) tf (* tf ratio)))
-             (list af 0 cf 0 gf 0 tf 0))
-         (if (> forward-sum 0)
-             (let ((ratio (/ reverse-sum forward-sum)))
-               (list (* ar ratio) ar (* cr ratio) cr
-                     (* gr ratio) gr (* tr ratio) tr))
-             (list 0 ar 0 cr 0 gr 0 tr))))))
+    (if t
+     ;; (> (strand-bias forward-max forward-2nd reverse-max reverse-2nd)
+     ;;       0.95)
+        (mapcar #'floor
+                (if (> forward-prominence reverse-prominence)
+                    (if (> forward-sum 0)
+                        (let ((ratio (/ reverse-sum forward-sum)))
+                          (list af (* af ratio) cf (* cf ratio)
+                                gf (* gf ratio) tf (* tf ratio)))
+                        (list 0 0 0 0 0 0 0 0))
+                    (if (> reverse-sum 0)
+                        (let ((ratio (/ forward-sum reverse-sum)))
+                          (list (* ar ratio) ar (* cr ratio) cr
+                                (* gr ratio) gr (* tr ratio) tr))
+                        (list 0 0 0 0 0 0 0 0))))
+        (list af ar cf cr gf gr tf tr))))
 
 (defun double-to-single-strand (af ar cf cr gf gr tf tr)
   (list (+ af ar) (+ cf cr) (+ gf gr) (+ tf tr)))
