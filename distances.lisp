@@ -200,3 +200,53 @@ counts."
       (format stream "~@[Chr: ~A ~]Pos: ~D A:~D,~D C:~D,~D G:~D,~D T:~D,~D"
               chromosome position Af Ar Cf Cr Gf Gr Tf Tr))))
 
+(defun read-vphaser-file (filename &optional (chromosome nil))
+  "Returns list of vphaser variants. Ignores the LPs at the moment."
+  (let ((variants (list)))
+    (with-open-file (filein filename)
+      (loop for line = (read-line filein nil)
+         while line do
+           (unless (char= (aref line 0) #\#) ;comment line
+             (let ((split (split-string line #\Tab)))
+               (cond
+                 ((string= (nth 4 split) "snp")
+                  (let ((counts (make-array '(8) :initial-element 0)))
+                    (loop for count in (nthcdr 6 split)
+                       for countsplit = (split-string count #\:)
+                       do
+                         (case (aref (nth 0 countsplit) 0)
+                           (#\A
+                            (setf (aref counts 0) (read-from-string
+                                                   (nth 1 countsplit)))
+                            (setf (aref counts 1) (read-from-string
+                                                   (nth 2 countsplit))))
+                           (#\C
+                            (setf (aref counts 2) (read-from-string
+                                                   (nth 1 countsplit)))
+                            (setf (aref counts 3) (read-from-string
+                                                   (nth 2 countsplit))))
+                           (#\G
+                            (setf (aref counts 4) (read-from-string
+                                                   (nth 1 countsplit)))
+                            (setf (aref counts 5) (read-from-string
+                                                   (nth 2 countsplit))))
+                           (#\T
+                            (setf (aref counts 6) (read-from-string
+                                                   (nth 1 countsplit)))
+                            (setf (aref counts 7) (read-from-string
+                                                   (nth 2 countsplit))))))
+                    (push (make-instance
+                           'vphaser-snp
+                           :chromosome chromosome
+                           :position (read-from-string (nth 0 split))
+                           :variant (char-to-base (aref (nth 1 split) 0))
+                           :reference (char-to-base (aref (nth 2 split) 0))
+                           :sb-pval (read-from-string (nth 3 split))
+                           :occurrence (read-from-string (nth 5 split))
+                           :Af (aref counts 0) :Ar (aref counts 1)
+                           :Cf (aref counts 2) :Cr (aref counts 3)
+                           :Gf (aref counts 4) :Gr (aref counts 5)
+                           :Tf (aref counts 6) :Tr (aref counts 7))
+                          variants))))))))
+    (nreverse variants)))
+
