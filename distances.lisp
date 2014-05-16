@@ -250,3 +250,52 @@ counts."
                           variants))))))))
     (nreverse variants)))
 
+(defun vphaser-variation-distance (snps1 snps2)
+  "Measures distance between sets of SNPs."
+  (let ((snp-sites (make-hash-table :test #'equal)))
+    ;; We assume that there is only one variant per site so use just the
+    ;; variant occurrence rate from vphaser 2. If only one site contains the
+    ;; variant then the position variation distance is equal to that
+    ;; occurrence rate. Otherwise it is equal to the absolute difference of
+    ;; both occurrence rates.
+    (loop for snp in (append snps1 snps2)
+       for chr = (vphaser-snp-chromosome snp)
+       for pos = (vphaser-snp-position snp)
+       for occ = (/ (vphaser-snp-occurrence snp) 100)
+       do
+         (if (gethash (cons chr pos) snp-sites)
+             (setf (gethash (cons chr pos) snp-sites)
+                   (abs (- (gethash (cons chr pos) snp-sites)
+                           occ)))
+             (setf (gethash (cons chr pos) snp-sites)
+                   occ)))
+    (loop for occurrence being the hash-values in snp-sites
+       sum occurrence)))
+
+(defun vphaser-variaton-matrix (directories)
+  "Calculates the variation matrix using only the variants outputted by
+vphaser 2. DIRECTORIES should be a list of strings containing pathnames which
+the vphaser outputs can be located, one directory per sample."
+  (let* ((sample-names (mapcar (lambda (dir) (car (last (split-string dir #\/))))
+                               directories))
+         (sample-snps
+          (loop for dir in directories collect
+               (loop for filename in (directory (format nil "~A/*.fdr.var.txt" dir))
+                  for chromosome = (nth 0 (split-string (pathname-name filename) #\.))
+                  nconc
+                    (read-vphaser-file filename chromosome))))
+         (matrix (make-matrix sample-names)))
+    (dbg :vphaser-variation-matrix "~A~%" sample-names)
+    (loop for name in sample-names do
+         (setf (matrix-elt matrix name name :test #'equal) 0))
+    (loop for i from 0
+       for ic on sample-snps
+       do
+         (loop for j from (1+ i)
+            for jc on (cdr ic)
+            for dist = (vphaser-variation-distance (car ic) (car jc))
+            do
+              (setf (aref (vals matrix) i j) dist)
+              (setf (aref (vals matrix) j i) dist)))
+    matrix))
+
