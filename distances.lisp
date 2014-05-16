@@ -13,6 +13,10 @@
     :accessor vals
     :documentation "The matrix.")))
 
+(defmethod print-object ((object matrix) stream)
+  (print-unreadable-object (object stream :type t)
+    (format stream "size ~A" (length (names object)))))
+
 (defun make-matrix (names)
   (make-instance 'matrix :names names
                  :vals (make-array `(,(length names) ,(length names))
