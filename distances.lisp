@@ -84,17 +84,23 @@
        do
          (loop for (day) in (sqlite:execute-to-list
                              db "select distinct day from pileup
-                                where animal = ?;"
+                                 where animal = ?;"
                              animal-id)
             for sequence = (sqlite:execute-to-list
-                            db "select A,C,G,T
-                              from pileupnd where animal = ? and day = ?
-                              order by chromosome, position;"
+                            db "select Af,Ar,Cf,Cr,Gf,Gr,Tf,Tr
+                                from pileup where animal = ? and day = ?
+                                order by chromosome, position;"
                             animal-id day)
             do
+              (dbg :seqvarmat "Removing bias...~%")
+              (setf sequence (mapcar (lambda (p) (apply #'filter-bias p))
+                                     sequence))
+              (setf sequence (mapcar (lambda (p) (apply #'double-to-single-strand p))
+                                     sequence))
               (push (cons (format nil "~A-d~D" animal-name day)
                           sequence)
                     sequences)))
+    (setf sequences (nreverse sequences))
     (setf distance-matrix (make-matrix (mapcar #'car sequences)))
     (loop for name in (names distance-matrix) do
          (setf (matrix-elt distance-matrix name name :test #'equal) 0))
