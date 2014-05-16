@@ -29,3 +29,34 @@
   (string-trim "_-." (ppcre:regex-replace-all
                       "[^a-zA-Z0-9_\\-.]+" filename "_")))
 
+(defun head (list &optional (n 10))
+  (loop repeat n
+     for element in list collect element))
+
+(defun compose (&rest funs)
+  (setf funs (nreverse funs))
+  (lambda (&rest args)
+    (loop with val = (apply (first funs) args)
+       for fun in (rest funs) do
+         (setf val (funcall fun val))
+       finally
+         (return val))))
+
+(defun range (beg end &optional (step 1))
+  "Returns range of numbers between beg and end."
+  (assert (and (<= beg end) (> step 0)))
+  (loop for i from beg to end by step collecting i))
+
+(defun split-string (string delimiter &key (omit-nulls t))
+  (assert (stringp string))
+  (assert (characterp delimiter))
+  (let ((splits (list)))
+   (loop for pos = (position delimiter string)
+      while pos do
+        (push (subseq string 0 pos) splits)
+        (setf string (subseq string (1+ pos)))
+      finally (push string splits))
+   (when omit-nulls
+     (setf splits (delete "" splits :test #'equal)))
+   (nreverse splits)))
+
