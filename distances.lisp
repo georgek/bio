@@ -162,3 +162,41 @@ counts."
        do
          (format stream "~5D - ~5D: ~7,3F~%"
                  (1+ i) (min (+ i window-size) length) diff))))
+
+(defmacro defsimpleclass (name direct-superclasses slots)
+  (flet ((add-convenience (slot)
+           (nconc slot
+                  (list :initarg (intern (symbol-name (car slot)) :keyword)
+                        :accessor (intern (concatenate
+                                           'string
+                                           (symbol-name name) "-"
+                                           (symbol-name (car slot))))
+                        :initform (case (nth 2 slot)
+                                    (integer 0)
+                                    (single-float 0.0))))))
+    `(defclass ,name ,direct-superclasses
+       ,(mapcar #'add-convenience slots))))
+
+(defsimpleclass vphaser-snp ()
+  ((chromosome :type string)
+   (position :type integer)
+   (variant :type (integer 0 3))
+   (reference :type (integer 0 3))
+   (sb-pval :type single-float)
+   (occurrence :type single-float)
+   (Af :type integer)
+   (Ar :type integer)
+   (Cf :type integer)
+   (Cr :type integer)
+   (Gf :type integer)
+   (Gr :type integer)
+   (Tf :type integer)
+   (Tr :type integer)))
+
+(defmethod print-object ((object vphaser-snp) stream)
+  (with-slots (chromosome position Af Ar Cf Cr Gf Gr Tf Tr)
+      object
+    (print-unreadable-object (object stream :type t)
+      (format stream "~@[Chr: ~A ~]Pos: ~D A:~D,~D C:~D,~D G:~D,~D T:~D,~D"
+              chromosome position Af Ar Cf Cr Gf Gr Tf Tr))))
+
