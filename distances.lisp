@@ -123,3 +123,42 @@
                     distance)))
     distance-matrix))
 
+(defun consensus-base (counts)
+  "Returns base char with highest count.  Counts should be a list of a,c,g,t
+counts."
+  (let ((alist (mapcar #'cons counts (list #\a #\c #\g #\t))))
+    (cdr (assoc (reduce #'max counts) alist :test #'=))))
+
+(defun window-var (seq1 seq2 window-size filter-function)
+  (flet ((pospr (pos) (apply #'double-to-single-strand
+                             (apply filter-function pos))))
+    (loop with length = (min (length seq1) (length seq2))
+       for i from 0 below length by window-size
+       collect
+         (sequence-variation-distance
+          (mapcar #'pospr (subseq seq1 i (min (+ i window-size) length)))
+          (mapcar #'pospr (subseq seq2 i (min (+ i window-size) length)))))))
+
+(defun print-win-var-diff (stream seq1 seq2 window-size filter1 filter2)
+  "For comparing filtering methods."
+  (let ((windows1 (window-var seq1 seq2 window-size filter1))
+        (windows2 (window-var seq1 seq2 window-size filter2)))
+    (loop with length = (min (length seq1) (length seq2))
+       with diffs = (mapcar #'- windows1 windows2)
+       for diff in diffs
+       for i from 0 below length by window-size
+       do
+         (format stream "~5D - ~5D: ~7,3F~%"
+                 (1+ i) (min (+ i window-size) length) diff))))
+
+(defun print-win-var-seq-diff (stream refseq seq1 seq2 window-size filter)
+  "For comparing sequences to a reference."
+  (let ((windows1 (window-var refseq seq1 window-size filter))
+        (windows2 (window-var refseq seq2 window-size filter)))
+    (loop with length = (min (length refseq) (length seq1) (length seq2))
+       with diffs = (mapcar #'- windows1 windows2)
+       for diff in diffs
+       for i from 0 below length by window-size
+       do
+         (format stream "~5D - ~5D: ~7,3F~%"
+                 (1+ i) (min (+ i window-size) length) diff))))
