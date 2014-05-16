@@ -155,7 +155,8 @@ each element."
   (let ((sequences (mapcar (lambda (seq name)
                              (make-instance 'seq :name name
                                             :characters (characters seq)))
-                           sequences (uniquify-names (mapcar #'name sequences)))))
+                           sequences (uniquify-names
+                                      (mapcar #'name sequences)))))
     (loop for sequence in sequences do
          (format stream ">~A" (name sequence))
          (loop for base across (characters sequence)
