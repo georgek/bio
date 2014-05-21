@@ -36,15 +36,15 @@
 (defun get-consensus-sequences2 (db animal-id day)
   (flet ((pos-to-base (pos)
            (consensus-base (apply #'double-to-single-strand
-                                  (apply #'filter-bias pos)
-                                  ))))
+                                  (apply #'filter-bias pos)))))
    (loop for (chr-id chr-name) in (sqlite:execute-to-list
-                                   db "select id, name from chromosomes;")
+                                   db "select id, name from chromosomes order by id;")
       for counts = (sqlite:execute-to-list
                     db "select Af,Ar,Cf,Cr,Gf,Gr,Tf,Tr
                        from pileup where animal = ? and day = ? and chromosome = ?
                        order by position asc;"
                     animal-id day chr-id)
       collecting (make-instance 'seq :name chr-name
-                                :characters (map 'vector #'pos-to-base counts)))))
+                                :characters (map 'vector
+                                                 #'pos-to-base counts)))))
 
