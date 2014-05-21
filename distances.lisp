@@ -55,6 +55,60 @@
                (format stream "~C" delimiter)))
         (fresh-line stream))))
 
+(defun hamming (seq1 seq2)
+  "SEQ1 and SEQ2 should be sequences."
+  (reduce #'+ (map 'list (lambda (a b) (if (equal a b) 0 1)) seq1 seq2)))
+
+(defun consensus-base (counts)
+  "Returns base char with highest count.  Counts should be a list of a,c,g,t
+counts."
+  (let ((alist (mapcar #'cons counts (list #\a #\c #\g #\t))))
+    (cdr (assoc (reduce #'max counts) alist :test #'=))))
+
+(defun discretise-position (counts)
+  "Returns the position but with the maximum count set to 1 and others set to
+0."
+  (let ((max (reduce #'max counts)))
+    (mapcar (lambda (c) (if (= c max) 1 0)) counts)))
+
+(defun consensus-variation-matrix (db)
+  (let ((consensuses (list))
+        distance-matrix)
+    (loop for (animal-id animal-name)
+       in (sqlite:execute-to-list
+           db "select id,name from animals;")
+       do
+         (loop for (day) in (sqlite:execute-to-list
+                             db "select distinct day from pileup
+                                 where animal = ?;"
+                             animal-id)
+            do
+              (push (cons (format nil "~A-d~D" animal-name day)
+                          (get-consensus-sequences2 db animal-id day))
+                    consensuses)))
+    (setf consensuses (nreverse consensuses))
+    (setf distance-matrix (make-matrix (mapcar #'car consensuses)))
+    (loop for name in (names distance-matrix) do
+         (setf (matrix-elt distance-matrix name name :test #'equal) 0))
+    (loop for consensusc on consensuses
+       for consensus1 = (first consensusc)
+       do
+         (loop for consensus2 in (rest consensusc)
+              for distance = (reduce #'+ (mapcar
+                                          #'hamming
+                                          (mapcar #'characters (cdr consensus1))
+                                          (mapcar #'characters (cdr consensus2))))
+            do
+              (setf (matrix-elt distance-matrix
+                                (car consensus1) (car consensus2)
+                                :test #'equal)
+                    distance)
+              (setf (matrix-elt distance-matrix
+                                (car consensus2) (car consensus1)
+                                :test #'equal)
+                    distance)))
+    distance-matrix))
+
 (defun manhattan (a b)
   "A and B lists of numbers.  Calculates Manhattan distance between A and B."
   (reduce #'+ (mapcar (lambda (a b) (abs (- a b))) a b)))
@@ -122,12 +176,6 @@
                                 :test #'equal)
                     distance)))
     distance-matrix))
-
-(defun consensus-base (counts)
-  "Returns base char with highest count.  Counts should be a list of a,c,g,t
-counts."
-  (let ((alist (mapcar #'cons counts (list #\a #\c #\g #\t))))
-    (cdr (assoc (reduce #'max counts) alist :test #'=))))
 
 (defun window-var (seq1 seq2 window-size filter-function)
   (flet ((pospr (pos) (apply #'double-to-single-strand
