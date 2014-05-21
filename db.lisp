@@ -33,18 +33,21 @@
     (sqlite:execute-non-query db "drop table consensus;")
     (nreverse consensuses)))
 
-(defun get-consensus-sequences2 (db animal-id day)
-  (flet ((pos-to-base (pos)
-           (consensus-base (apply #'double-to-single-strand
-                                  (apply #'filter-bias pos)))))
-   (loop for (chr-id chr-name) in (sqlite:execute-to-list
-                                   db "select id, name from chromosomes order by id;")
-      for counts = (sqlite:execute-to-list
-                    db "select Af,Ar,Cf,Cr,Gf,Gr,Tf,Tr
+(defun get-position-counts (db animal-id day chr-id)
+  (let ((counts (sqlite:execute-to-list
+                 db "select Af,Ar,Cf,Cr,Gf,Gr,Tf,Tr
                        from pileup where animal = ? and day = ? and chromosome = ?
                        order by position asc;"
-                    animal-id day chr-id)
-      collecting (make-instance 'seq :name chr-name
-                                :characters (map 'vector
-                                                 #'pos-to-base counts)))))
+                 animal-id day chr-id)))
+    (mapcar (lambda (pos) (apply #'double-to-single-strand
+                                 (apply #'filter-bias pos)))
+            counts)))
+
+(defun get-consensus-sequences2 (db animal-id day)
+  (loop for (chr-id chr-name) in (sqlite:execute-to-list
+                                  db "select id, name from chromosomes order by id;")
+     for counts = (get-position-counts db animal-id day chr-id)
+     collecting (make-instance 'seq :name chr-name
+                               :characters (map 'vector
+                                                #'consensus-base counts))))
 
