@@ -113,6 +113,12 @@ counts."
   "A and B lists of numbers.  Calculates Manhattan distance between A and B."
   (reduce #'+ (mapcar (lambda (a b) (abs (- a b))) a b)))
 
+(defun euclidean-sq (a b)
+  (reduce #'+ (mapcar (lambda (a b) (expt (- a b) 2)) a b)))
+
+(defun euclidean (a b)
+  (sqrt (euclidean-sq a b)))
+
 (defun position-variation-distance (pos1 pos2)
   (let* ((sum1 (float (reduce #'+ pos1)))
          (sum2 (float (reduce #'+ pos2)))
