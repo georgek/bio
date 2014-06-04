@@ -124,8 +124,8 @@ counts."
          (sum2 (float (reduce #'+ pos2)))
          (norm1 (mapcar (lambda (b) (if (zerop sum1) 0.0 (/ b sum1))) pos1))
          (norm2 (mapcar (lambda (b) (if (zerop sum2) 0.0 (/ b sum2))) pos2)))
-    (/ (manhattan norm1 norm2)
-       2)))
+    (/ (euclidean norm1 norm2)
+       (sqrt 2))))
 
 (defun sequence-variation-distance (seq1 seq2)
   "SEQ1 and SEQ2 must be lists of equal length of lists of numbers of equal
