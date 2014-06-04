@@ -132,7 +132,9 @@ counts."
   length. The distance is the sum of half the Manhattan distances between
   corresponding positions in the sequences.  Is equivalent to the Manhattan
   distances if only one base per position, ie. each sublist has one nonzero."
-  (reduce #'+ (mapcar #'position-variation-distance seq1 seq2)))
+  (let ((dist (/ (reduce #'+ (mapcar #'position-variation-distance seq1 seq2))
+                 (min (length seq1) (length seq2)))))
+    (* -3/4 (log (- 1 (* 4/3 dist))))))
 
 (defun sequence-variation-matrix (db)
   "Makes sequence variation matrix for every sample in db."
