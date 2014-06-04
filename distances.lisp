@@ -249,6 +249,10 @@ counts."
    (Tf :type integer)
    (Tr :type integer)))
 
+(defmethod initialize-instance :after ((snp vphaser-snp) &key)
+  (setf (vphaser-snp-reference snp) (char-downcase (vphaser-snp-reference snp)))
+  (setf (vphaser-snp-variant snp) (char-downcase (vphaser-snp-variant snp))))
+
 (defmethod print-object ((object vphaser-snp) stream)
   (with-slots (chromosome position Af Ar Cf Cr Gf Gr Tf Tr)
       object
